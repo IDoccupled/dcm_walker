@@ -28,7 +28,7 @@ setup(
     },
     entry_points={
         'console_scripts': [
-            'visual_node := dcm_walker.dcm_walker_visual_node:main',
+            'visual_node = dcm_walker.dcm_walker_visual_node:main',
         ],
     },
 )

@@ -1,7 +1,7 @@
 import numpy as np
-from step import Step
-from foot_step_generator import StepGenerator
-from dcm_planner import DCMPlanner
+from dcm_walker.step import Step
+from dcm_walker.foot_step_generator import StepGenerator
+from dcm_walker.dcm_planner import DCMPlanner
 import matplotlib.pyplot as plt
 
 class StepCommand:

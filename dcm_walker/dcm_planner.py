@@ -1,5 +1,5 @@
 import numpy as np
-from foot_step_generator import StepGenerator
+from dcm_walker.foot_step_generator import StepGenerator
 import matplotlib.pyplot as plt
 
 class DCMPlanner:

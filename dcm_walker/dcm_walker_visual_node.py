@@ -13,10 +13,10 @@ import time
 from geometry_msgs.msg import TransformStamped, Twist
 from tf_transformations import euler_from_matrix
 
-from spline_trajectory import CubicSplineTrajectory
-from foot_step_generator import StepGenerator
-from dcm_planner import DCMPlanner
-from step_commander import StepCommander
+from dcm_walker.spline_trajectory import CubicSplineTrajectory
+from dcm_walker.foot_step_generator import StepGenerator
+from dcm_walker.dcm_planner import DCMPlanner
+from dcm_walker.step_commander import StepCommander
 
 from rclpy.qos import QoSProfile
 from rclpy.duration import Duration

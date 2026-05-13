@@ -1,6 +1,6 @@
 import numpy as np
-from single_step_generator import SingleStepGenerator
-from step import Step
+from dcm_walker.single_step_generator import SingleStepGenerator
+from dcm_walker.step import Step
 import matplotlib.pyplot as plt
 
 class nStepError(Exception):

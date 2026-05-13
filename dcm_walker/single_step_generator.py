@@ -1,4 +1,4 @@
-from step import Step
+from dcm_walker.step import Step
 import numpy as np
 import matplotlib.pyplot as plt
 
