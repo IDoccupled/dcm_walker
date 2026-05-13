@@ -23,10 +23,11 @@ jobs:
           sudo rosdep init || true
           rosdep update
           rosdep install --from-paths . --ignore-src -y
-          python3 -m pip install --upgrade pip pytest
+          python3 -m pip install --upgrade pip flake8 pydocstyle
 
-      - name: Run lint (flake8/pep257)
+      - name: Run lint (flake8/pydocstyle)
         shell: bash
         run: |
           source /opt/ros/$ROS_DISTRO/setup.bash
-          pytest -m "flake8 or pep257"
+          flake8 .
+          pydocstyle .
