@@ -9,7 +9,7 @@ from launch.substitutions import LaunchConfiguration
 
 def generate_launch_description():
     # Define paths
-    pkg_share = get_package_share_directory('ros_visuals')
+    pkg_share = get_package_share_directory('dcm_walker')
     rviz_config_file = os.path.join(pkg_share, 'rviz', 'rviz.rviz')
 
     rviz_node = Node(
