@@ -1,5 +1,3 @@
-import sys
-import os
 import threading
 import rclpy
 from rclpy.node import Node
@@ -17,9 +15,6 @@ from dcm_walker.spline_trajectory import CubicSplineTrajectory
 from dcm_walker.foot_step_generator import StepGenerator
 from dcm_walker.dcm_planner import DCMPlanner
 from dcm_walker.step_commander import StepCommander
-
-from rclpy.qos import QoSProfile
-from rclpy.duration import Duration
 
 '''Step settings'''
 STEP_LENGTH : float = 0.05
