@@ -32,7 +32,6 @@ class DCMPlanner:
         self.f_c = (1.0 / np.pi) * np.sqrt(9.81 / self.com_height)
 
         self.dcm_each_step = self.step_duration * self.frequency
-
         if not self.dcm_each_step.is_integer():
             raise ValueError("step_duration * frequency must be an integer.")
         self.dcm_each_step = int(self.dcm_each_step)
@@ -40,8 +39,11 @@ class DCMPlanner:
     def compute(self, step_list: list = None) -> np.ndarray:
 
         self.vrp_array = np.empty((0, 3))
+
         self.xi_array = np.empty((0, 3))
         self.xi_r_array = np.empty((0, self.dcm_each_step, 3))
+        self.dot_xi_r_array = np.empty((0, self.dcm_each_step, 3))
+
         self.com_traj_array = np.empty((0, self.dcm_each_step, 3))
         self.com_vel_array = np.empty((0, self.dcm_each_step, 3))
         
@@ -64,6 +66,7 @@ class DCMPlanner:
         # Waypoints
         for i in range(len(self.xi_array)-1):
             xi_r_array_temp = []
+            dot_xi_r_array_temp = []
             for j in range(self.dcm_each_step):
                 j += 1
                 xi_r_x = self.vrp_array[i,0] \
@@ -76,6 +79,14 @@ class DCMPlanner:
                     xi_r_x = self.vrp_array[-1,0]
                     xi_r_y = self.vrp_array[-1,1]
                 xi_r_array_temp.append([xi_r_x, xi_r_y, self.com_height])
+                
+                dot_xi_r_x = self.omega_c * (xi_r_x - self.vrp_array[i,0])
+                dot_xi_r_y = self.omega_c * (xi_r_y - self.vrp_array[i,1])
+                dot_xi_r_array_temp.append([dot_xi_r_x, dot_xi_r_y, 0.0])
+
+            self.dot_xi_r_array = np.concatenate((self.dot_xi_r_array, 
+                                              np.array(dot_xi_r_array_temp).reshape(1, self.dcm_each_step, 3)),
+                                              axis=0)
             self.xi_r_array = np.concatenate((self.xi_r_array, 
                                               np.array(xi_r_array_temp).reshape(1, self.dcm_each_step, 3)), 
                                               axis=0)

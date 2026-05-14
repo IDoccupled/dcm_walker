@@ -29,14 +29,14 @@ class StepCommand:
     '''
     def __init__(self, 
                  idx: int = 0,
-                 l_cmd_init: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                 l_cmd_1: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                 l_cmd_2: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                 l_cmd_3: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                 r_cmd_init: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                 r_cmd_1: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                 r_cmd_2: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
-                 r_cmd_3: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0]):
+                 l_cmd_init: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                 l_cmd_1:    list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                 l_cmd_2:    list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                 l_cmd_3:    list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                 r_cmd_init: list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                 r_cmd_1:    list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                 r_cmd_2:    list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0],
+                 r_cmd_3:    list[float] = [0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0, 0.0]):
         self.idx = idx
         self.l_cmd_init = l_cmd_init
         self.l_cmd_1 = l_cmd_1
@@ -49,16 +49,16 @@ class StepCommand:
 
     def __str__(self):
         return f"Step idx: {self.idx}\n" \
-               f"L_cmd   : pos_x, pos_y, lift,   rot,  vel_x, vel_y\n" \
-               f"init    : {float(self.l_cmd_init[0]):.3f}, {float(self.l_cmd_init[1]):.3f}, {float(self.l_cmd_init[2]):.3f}, {float(self.l_cmd_init[3]):.3f}, {float(self.l_cmd_init[4]):.3f}, {float(self.l_cmd_init[5]):.3f}\n" \
-               f"ss      : {float(self.l_cmd_1[0]):.3f}, {float(self.l_cmd_1[1]):.3f}, {float(self.l_cmd_1[2]):.3f}, {float(self.l_cmd_1[3]):.3f}, {float(self.l_cmd_1[4]):.3f}, {float(self.l_cmd_1[5]):.3f}\n" \
-               f"ds begin: {float(self.l_cmd_2[0]):.3f}, {float(self.l_cmd_2[1]):.3f}, {float(self.l_cmd_2[2]):.3f}, {float(self.l_cmd_2[3]):.3f}, {float(self.l_cmd_2[4]):.3f}, {float(self.l_cmd_2[5]):.3f}\n" \
-               f"ds end  : {float(self.l_cmd_3[0]):.3f}, {float(self.l_cmd_3[1]):.3f}, {float(self.l_cmd_3[2]):.3f}, {float(self.l_cmd_3[3]):.3f}, {float(self.l_cmd_3[4]):.3f}, {float(self.l_cmd_3[5]):.3f}\n" \
-               f"R_cmd   : pos_x, pos_y, lift,   rot,  vel_x, vel_y\n" \
-               f"init    : {float(self.r_cmd_init[0]):.3f}, {float(self.r_cmd_init[1]):.3f}, {float(self.r_cmd_init[2]):.3f}, {float(self.r_cmd_init[3]):.3f}, {float(self.r_cmd_init[4]):.3f}, {float(self.r_cmd_init[5]):.3f}\n" \
-               f"ss      : {float(self.r_cmd_1[0]):.3f}, {float(self.r_cmd_1[1]):.3f}, {float(self.r_cmd_1[2]):.3f}, {float(self.r_cmd_1[3]):.3f}, {float(self.r_cmd_1[4]):.3f}, {float(self.r_cmd_1[5]):.3f}\n" \
-               f"ds begin: {float(self.r_cmd_2[0]):.3f}, {float(self.r_cmd_2[1]):.3f}, {float(self.r_cmd_2[2]):.3f}, {float(self.r_cmd_2[3]):.3f}, {float(self.r_cmd_2[4]):.3f}, {float(self.r_cmd_2[5]):.3f}\n" \
-               f"ds end  : {float(self.r_cmd_3[0]):.3f}, {float(self.r_cmd_3[1]):.3f}, {float(self.r_cmd_3[2]):.3f}, {float(self.r_cmd_3[3]):.3f}, {float(self.r_cmd_3[4]):.3f}, {float(self.r_cmd_3[5]):.3f}\n"
+               f"L_cmd   : pos_x, pos_y, lift,   rot,  vel_x, vel_y, acc_x, acc_y\n" \
+               f"init    : {float(self.l_cmd_init[0]):.3f}, {float(self.l_cmd_init[1]):.3f}, {float(self.l_cmd_init[2]):.3f}, {float(self.l_cmd_init[3]):.3f}, {float(self.l_cmd_init[4]):.3f}, {float(self.l_cmd_init[5]):.3f}, {float(self.l_cmd_init[6]):.3f}, {float(self.l_cmd_init[7]):.3f}\n" \
+               f"ss      : {float(self.l_cmd_1[0]):.3f}, {float(self.l_cmd_1[1]):.3f}, {float(self.l_cmd_1[2]):.3f}, {float(self.l_cmd_1[3]):.3f}, {float(self.l_cmd_1[4]):.3f}, {float(self.l_cmd_1[5]):.3f}, {float(self.l_cmd_1[6]):.3f}, {float(self.l_cmd_1[7]):.3f}\n" \
+               f"ds begin: {float(self.l_cmd_2[0]):.3f}, {float(self.l_cmd_2[1]):.3f}, {float(self.l_cmd_2[2]):.3f}, {float(self.l_cmd_2[3]):.3f}, {float(self.l_cmd_2[4]):.3f}, {float(self.l_cmd_2[5]):.3f}, {float(self.l_cmd_2[6]):.3f}, {float(self.l_cmd_2[7]):.3f}\n" \
+               f"ds end  : {float(self.l_cmd_3[0]):.3f}, {float(self.l_cmd_3[1]):.3f}, {float(self.l_cmd_3[2]):.3f}, {float(self.l_cmd_3[3]):.3f}, {float(self.lCmd_3[4]):.3f}, {float(self.lCmd_3[5]):.3f}, {float(self.lCmd_3[6]):.3f}, {float(self.lCmd_3[7]):.3f}\n" \
+               f"R_cmd   : pos_x, pos_y, lift,   rot,  vel_x, vel_y, acc_x, acc_y\n" \
+               f"init    : {float(self.r_cmd_init[0]):.3f}, {float(self.r_cmd_init[1]):.3f}, {float(self.r_cmd_init[2]):.3f}, {float(self.r_cmd_init[3]):.3f}, {float(self.r_cmd_init[4]):.3f}, {float(self.r_cmd_init[5]):.3f}, {float(self.r_cmd_init[6]):.3f}, {float(self.r_cmd_init[7]):.3f}\n" \
+               f"ss      : {float(self.r_cmd_1[0]):.3f}, {float(self.r_cmd_1[1]):.3f}, {float(self.r_cmd_1[2]):.3f}, {float(self.r_cmd_1[3]):.3f}, {float(self.r_cmd_1[4]):.3f}, {float(self.r_cmd_1[5]):.3f}, {float(self.r_cmd_1[6]):.3f}, {float(self.r_cmd_1[7]):.3f}\n" \
+               f"ds begin: {float(self.r_cmd_2[0]):.3f}, {float(self.r_cmd_2[1]):.3f}, {float(self.r_cmd_2[2]):.3f}, {float(self.r_cmd_2[3]):.3f}, {float(self.r_cmd_2[4]):.3f}, {float(self.r_cmd_2[5]):.3f}, {float(self.r_cmd_2[6]):.3f}, {float(self.r_cmd_2[7]):.3f}\n" \
+               f"ds end  : {float(self.r_cmd_3[0]):.3f}, {float(self.r_cmd_3[1]):.3f}, {float(self.r_cmd_3[2]):.3f}, {float(self.r_cmd_3[3]):.3f}, {float(self.rCmd_3[4]):.3f}, {float(self.rCmd_3[5]):.3f}, {float(self.rCmd_3[6]):.3f}, {float(self.rCmd_3[7]):.3f}\n"
 
     def idx(self) -> int:
         return self.idx
@@ -66,7 +66,9 @@ class StepCommand:
     def l_cmd_pos_init(self) -> list[float]:
         return self.l_cmd_init[:4]
     def l_cmd_vel_init(self) -> list[float]:
-        return self.l_cmd_init[4:]
+        return self.l_cmd_init[4:6]
+    def l_cmd_acc_init(self) -> list[float]:
+        return self.l_cmd_init[6:8]
     def l_cmd_pos_1(self) -> list[float]:
         return self.l_cmd_1[:4]
     def l_cmd_pos_2(self) -> list[float]:
@@ -74,16 +76,24 @@ class StepCommand:
     def l_cmd_pos_3(self) -> list[float]:
         return self.l_cmd_3[:4]
     def l_cmd_vel_1(self) -> list[float]:
-        return self.l_cmd_1[4:]
+        return self.l_cmd_1[4:6]
     def l_cmd_vel_2(self) -> list[float]:
-        return self.l_cmd_2[4:]
+        return self.l_cmd_2[4:6]
     def l_cmd_vel_3(self) -> list[float]:
-        return self.l_cmd_3[4:]
+        return self.l_cmd_3[4:6]
+    def l_cmd_acc_1(self) -> list[float]:
+        return self.l_cmd_1[6:8]
+    def l_cmd_acc_2(self) -> list[float]:
+        return self.l_cmd_2[6:8]
+    def l_cmd_acc_3(self) -> list[float]:
+        return self.l_cmd_3[6:8]
 
     def r_cmd_pos_init(self) -> list[float]:
         return self.r_cmd_init[:4]
     def r_cmd_vel_init(self) -> list[float]:
-        return self.r_cmd_init[4:]
+        return self.r_cmd_init[4:6]
+    def r_cmd_acc_init(self) -> list[float]:
+        return self.r_cmd_init[6:8]
     def r_cmd_pos_1(self) -> list[float]:
         return self.r_cmd_1[:4]
     def r_cmd_pos_2(self) -> list[float]:
@@ -91,12 +101,18 @@ class StepCommand:
     def r_cmd_pos_3(self) -> list[float]:
         return self.r_cmd_3[:4]
     def r_cmd_vel_1(self) -> list[float]:
-        return self.r_cmd_1[4:]
+        return self.r_cmd_1[4:6]
     def r_cmd_vel_2(self) -> list[float]:
-        return self.r_cmd_2[4:]
+        return self.r_cmd_2[4:6]
     def r_cmd_vel_3(self) -> list[float]:
-        return self.r_cmd_3[4:]
-    
+        return self.r_cmd_3[4:6]
+    def r_cmd_acc_1(self) -> list[float]:
+        return self.r_cmd_1[6:8]
+    def r_cmd_acc_2(self) -> list[float]:
+        return self.r_cmd_2[6:8]
+    def r_cmd_acc_3(self) -> list[float]:
+        return self.r_cmd_3[6:8]
+
     def l_cmd_last(self) -> list[float]:
         return self.l_cmd_3
     def r_cmd_last(self) -> list[float]:
