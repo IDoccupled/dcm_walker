@@ -1,6 +1,7 @@
 import numpy as np
 from dcm_walker.foot_step_generator import StepGenerator
 import matplotlib.pyplot as plt
+import xr_tools_py.print_tools as printtools
 
 class DCMPlanner:
     '''
@@ -46,6 +47,7 @@ class DCMPlanner:
 
         self.com_traj_array = np.empty((0, self.dcm_each_step, 3))
         self.com_vel_array = np.empty((0, self.dcm_each_step, 3))
+        self.com_acc_array = np.empty((0, self.dcm_each_step, 3))
         
         # VRP
         self.vrp_array = np.array([step.pos for step in step_list]).reshape(-1,3)
@@ -95,15 +97,19 @@ class DCMPlanner:
         for i in range(len(self.xi_array)-1):
             com_traj_array_temp = []
             com_vel_array_temp = []
+            com_acc_array_temp = []
             prev_com = self.vrp_array[0,:].copy() if i == 0 else self.com_traj_array[i-1,-1,:]
             for j in range(self.dcm_each_step):
                 com_prev = prev_com if j == 0 else np.array(com_traj_array_temp[-1])
                 vel = self.omega_c * (self.xi_r_array[i,j,:] - com_prev)
+                acc = self.omega_c * (self.dot_xi_r_array[i,j,:] - vel)
                 com_next = com_prev + vel * self.dt
                 if i == len(self.xi_array)-2 and j == self.dcm_each_step-1:
                     com_next = self.vrp_array[-1,:].copy()
                     vel = np.zeros(3)
+                    acc = np.zeros(3)
                 com_vel_array_temp.append(vel.tolist())
+                com_acc_array_temp.append(acc.tolist())
                 com_traj_array_temp.append(com_next.tolist())
             self.com_traj_array = np.concatenate((self.com_traj_array, 
                                                   np.array(com_traj_array_temp).reshape(1, self.dcm_each_step, 3)),
@@ -111,7 +117,10 @@ class DCMPlanner:
             self.com_vel_array = np.concatenate((self.com_vel_array, 
                                                  np.array(com_vel_array_temp).reshape(1, self.dcm_each_step, 3)),
                                                  axis=0)
-            
+            self.com_acc_array = np.concatenate((self.com_acc_array, 
+                                                 np.array(com_acc_array_temp).reshape(1, self.dcm_each_step, 3)),
+                                                 axis=0)
+
     def visualize(self, 
                   threeD: bool = False,
                   print_log: bool = False,
@@ -130,15 +139,17 @@ class DCMPlanner:
             print("="*60)
             print("COM Trajectory Array, size:", self.com_traj_array.shape)
             print("COM Velocity Array, size:", self.com_vel_array.shape)
+            print("COM Acceleration Array, size:", self.com_acc_array.shape)
             for i in range(self.com_traj_array.shape[0]):
-                print(f"Step {i}, front foot {'left' if step_list[i+1].is_left() else 'right'}: ")
+                printtools.printgreen(f"Step {i}, swing foot {'left' if step_list[i+1].is_left() else 'right'}:")
                 for j in range(self.com_traj_array.shape[1]):
                     print(f"Time {j*self.dt:.2f}s: ")
                     print(f"COM Position = ({self.com_traj_array[i,j,0]:.3f}, {self.com_traj_array[i,j,1]:.3f}, {self.com_traj_array[i,j,2]:.3f})")
                     print(f"COM Velocity = ({self.com_vel_array[i,j,0]:.3f}, {self.com_vel_array[i,j,1]:.3f}, {self.com_vel_array[i,j,2]:.3f})")
+                    print(f"COM Acceleration = ({self.com_acc_array[i,j,0]:.3f}, {self.com_acc_array[i,j,1]:.3f}, {self.com_acc_array[i,j,2]:.3f})")
             print("="*60)
             for step in step_list:
-                print(f'Step {step.nStep} , Foot {"Left" if step.is_left() else "Right"}')
+                printtools.printyellow(f'Step {step.nStep} , Foot {"Left" if step.is_left() else "Right"}')
                 print(f'Position = ({step.pos[0]:.3f}, {step.pos[1]:.3f}, {step.pos[2]:.3f})')
             print("="*60)   
 
