@@ -3,6 +3,7 @@ from dcm_walker.step import Step
 from dcm_walker.foot_step_generator import StepGenerator
 from dcm_walker.dcm_planner import DCMPlanner
 import matplotlib.pyplot as plt
+import xr_tools_py.print_tools as pt
 
 class StepCommand:
     '''
@@ -48,17 +49,17 @@ class StepCommand:
         self.r_cmd_3 = r_cmd_3
 
     def __str__(self):
-        return f"Step idx: {self.idx}\n" \
+        return f"{pt.textyellow(f"Step idx: {self.idx}")}\n" \
                f"L_cmd   : pos_x, pos_y, lift,   rot,  vel_x, vel_y, acc_x, acc_y\n" \
                f"init    : {float(self.l_cmd_init[0]):.3f}, {float(self.l_cmd_init[1]):.3f}, {float(self.l_cmd_init[2]):.3f}, {float(self.l_cmd_init[3]):.3f}, {float(self.l_cmd_init[4]):.3f}, {float(self.l_cmd_init[5]):.3f}, {float(self.l_cmd_init[6]):.3f}, {float(self.l_cmd_init[7]):.3f}\n" \
                f"ss      : {float(self.l_cmd_1[0]):.3f}, {float(self.l_cmd_1[1]):.3f}, {float(self.l_cmd_1[2]):.3f}, {float(self.l_cmd_1[3]):.3f}, {float(self.l_cmd_1[4]):.3f}, {float(self.l_cmd_1[5]):.3f}, {float(self.l_cmd_1[6]):.3f}, {float(self.l_cmd_1[7]):.3f}\n" \
                f"ds begin: {float(self.l_cmd_2[0]):.3f}, {float(self.l_cmd_2[1]):.3f}, {float(self.l_cmd_2[2]):.3f}, {float(self.l_cmd_2[3]):.3f}, {float(self.l_cmd_2[4]):.3f}, {float(self.l_cmd_2[5]):.3f}, {float(self.l_cmd_2[6]):.3f}, {float(self.l_cmd_2[7]):.3f}\n" \
-               f"ds end  : {float(self.l_cmd_3[0]):.3f}, {float(self.l_cmd_3[1]):.3f}, {float(self.l_cmd_3[2]):.3f}, {float(self.l_cmd_3[3]):.3f}, {float(self.lCmd_3[4]):.3f}, {float(self.lCmd_3[5]):.3f}, {float(self.lCmd_3[6]):.3f}, {float(self.lCmd_3[7]):.3f}\n" \
+               f"ds end  : {float(self.l_cmd_3[0]):.3f}, {float(self.l_cmd_3[1]):.3f}, {float(self.l_cmd_3[2]):.3f}, {float(self.l_cmd_3[3]):.3f}, {float(self.l_cmd_3[4]):.3f}, {float(self.l_cmd_3[5]):.3f}, {float(self.l_cmd_3[6]):.3f}, {float(self.l_cmd_3[7]):.3f}\n" \
                f"R_cmd   : pos_x, pos_y, lift,   rot,  vel_x, vel_y, acc_x, acc_y\n" \
                f"init    : {float(self.r_cmd_init[0]):.3f}, {float(self.r_cmd_init[1]):.3f}, {float(self.r_cmd_init[2]):.3f}, {float(self.r_cmd_init[3]):.3f}, {float(self.r_cmd_init[4]):.3f}, {float(self.r_cmd_init[5]):.3f}, {float(self.r_cmd_init[6]):.3f}, {float(self.r_cmd_init[7]):.3f}\n" \
                f"ss      : {float(self.r_cmd_1[0]):.3f}, {float(self.r_cmd_1[1]):.3f}, {float(self.r_cmd_1[2]):.3f}, {float(self.r_cmd_1[3]):.3f}, {float(self.r_cmd_1[4]):.3f}, {float(self.r_cmd_1[5]):.3f}, {float(self.r_cmd_1[6]):.3f}, {float(self.r_cmd_1[7]):.3f}\n" \
                f"ds begin: {float(self.r_cmd_2[0]):.3f}, {float(self.r_cmd_2[1]):.3f}, {float(self.r_cmd_2[2]):.3f}, {float(self.r_cmd_2[3]):.3f}, {float(self.r_cmd_2[4]):.3f}, {float(self.r_cmd_2[5]):.3f}, {float(self.r_cmd_2[6]):.3f}, {float(self.r_cmd_2[7]):.3f}\n" \
-               f"ds end  : {float(self.r_cmd_3[0]):.3f}, {float(self.r_cmd_3[1]):.3f}, {float(self.r_cmd_3[2]):.3f}, {float(self.r_cmd_3[3]):.3f}, {float(self.rCmd_3[4]):.3f}, {float(self.rCmd_3[5]):.3f}, {float(self.rCmd_3[6]):.3f}, {float(self.rCmd_3[7]):.3f}\n"
+               f"ds end  : {float(self.r_cmd_3[0]):.3f}, {float(self.r_cmd_3[1]):.3f}, {float(self.r_cmd_3[2]):.3f}, {float(self.r_cmd_3[3]):.3f}, {float(self.r_cmd_3[4]):.3f}, {float(self.r_cmd_3[5]):.3f}, {float(self.r_cmd_3[6]):.3f}, {float(self.r_cmd_3[7]):.3f}\n"
 
     def idx(self) -> int:
         return self.idx
@@ -146,7 +147,8 @@ class StepCommander:
     def command(self,
                 step_list: list[Step],
                 com_traj_array: np.ndarray,
-                com_vel_array: np.ndarray) -> list[StepCommand]:
+                com_vel_array: np.ndarray,
+                com_acc_array: np.ndarray) -> list[StepCommand]:
             
             self.command_list = []
 
@@ -186,8 +188,8 @@ class StepCommander:
                 r_y = step_list[right].pos[1]
 
                 if predict_idx == 0:
-                    l_cmd_init = [l_x, l_y, l_cmd_z, l_theta, 0.0, 0.0]
-                    r_cmd_init = [r_x, r_y, r_cmd_z, r_theta, 0.0, 0.0]
+                    l_cmd_init = [l_x, l_y, l_cmd_z, l_theta, 0.0, 0.0, 0.0, 0.0]
+                    r_cmd_init = [r_x, r_y, r_cmd_z, r_theta, 0.0, 0.0, 0.0, 0.0]
                 else:
                     l_cmd_init = self.command_list[-1].l_cmd_last()
                     r_cmd_init = self.command_list[-1].r_cmd_last()
@@ -196,12 +198,16 @@ class StepCommander:
                 com_y_1 = com_traj_array[list_idx, self.ss, 1]
                 com_dotx_1 = com_vel_array[list_idx, self.ss, 0]
                 com_doty_1 = com_vel_array[list_idx, self.ss, 1]
+                com_ddotx_1 = com_acc_array[list_idx, self.ss, 0]
+                com_ddoty_1 = com_acc_array[list_idx, self.ss, 1]
                 l_cmd_x_1, l_cmd_y_1 = self._to_com_frame(l_x, l_y, com_x_1, com_y_1, com_theta)
-                l_cmd_dotx_1, l_cmd_doty_1 = self._to_com_frame(com_dotx_1, com_doty_1, 0, 0, com_theta)
+                l_cmd_dotx_1, l_cmd_doty_1 = self._to_com_frame(0, 0, com_dotx_1, com_doty_1, com_theta)
+                l_cmd_accx_1, l_cmd_accy_1 = self._to_com_frame(0, 0, com_ddotx_1, com_ddoty_1, com_theta)
                 l_cmd_z_1 = 0 if predict_idx == 0 else l_cmd_z
                 l_cmd_theta_1 = l_theta / 2
                 r_cmd_x_1, r_cmd_y_1 = self._to_com_frame(r_x, r_y, com_x_1, com_y_1, com_theta)
-                r_cmd_dotx_1, r_cmd_doty_1 = self._to_com_frame(com_dotx_1, com_doty_1, 0, 0, com_theta)
+                r_cmd_dotx_1, r_cmd_doty_1 = self._to_com_frame(0, 0, com_dotx_1, com_doty_1, com_theta)
+                r_cmd_accx_1, r_cmd_accy_1 = self._to_com_frame(0, 0, com_ddotx_1, com_ddoty_1, com_theta)
                 r_cmd_z_1 = 0 if predict_idx == 0 else r_cmd_z
                 r_cmd_theta_1 = r_theta / 2
 
@@ -209,12 +215,16 @@ class StepCommander:
                 com_y_2 = com_traj_array[list_idx, self.ds_begin, 1]
                 com_dotx_2 = com_vel_array[list_idx, self.ds_begin, 0]
                 com_doty_2 = com_vel_array[list_idx, self.ds_begin, 1]
+                com_ddotx_2 = com_acc_array[list_idx, self.ds_begin, 0]
+                com_ddoty_2 = com_acc_array[list_idx, self.ds_begin, 1]
                 l_cmd_x_2, l_cmd_y_2 = self._to_com_frame(l_x, l_y, com_x_2, com_y_2, com_theta)
-                l_cmd_dotx_2, l_cmd_doty_2 = self._to_com_frame(com_dotx_2, com_doty_2, 0, 0, com_theta)
+                l_cmd_dotx_2, l_cmd_doty_2 = self._to_com_frame(0, 0, com_dotx_2, com_doty_2, com_theta)
+                l_cmd_accx_2, l_cmd_accy_2 = self._to_com_frame(0, 0, com_ddotx_2, com_ddoty_2, com_theta)
                 l_cmd_z_2 = 0
                 l_cmd_theta_2 = l_theta
                 r_cmd_x_2, r_cmd_y_2 = self._to_com_frame(r_x, r_y, com_x_2, com_y_2, com_theta)
-                r_cmd_dotx_2, r_cmd_doty_2 = self._to_com_frame(com_dotx_2, com_doty_2, 0, 0, com_theta)
+                r_cmd_dotx_2, r_cmd_doty_2 = self._to_com_frame(0, 0, com_dotx_2, com_doty_2, com_theta)
+                r_cmd_accx_2, r_cmd_accy_2 = self._to_com_frame(0, 0, com_ddotx_2, com_ddoty_2, com_theta)
                 r_cmd_z_2 = 0
                 r_cmd_theta_2 = r_theta
 
@@ -222,23 +232,29 @@ class StepCommander:
                 com_y_3 = com_traj_array[list_idx, self.ds_end, 1]
                 com_dotx_3 = com_vel_array[list_idx, self.ds_end, 0]
                 com_doty_3 = com_vel_array[list_idx, self.ds_end, 1]
+                com_ddotx_3 = com_acc_array[list_idx, self.ds_end, 0]
+                com_ddoty_3 = com_acc_array[list_idx, self.ds_end, 1]
                 l_cmd_x_3, l_cmd_y_3 = self._to_com_frame(l_x, l_y, com_x_3, com_y_3, com_theta)
-                l_cmd_dotx_3, l_cmd_doty_3 = self._to_com_frame(com_dotx_3, com_doty_3, 0, 0, com_theta)
+                l_cmd_dotx_3, l_cmd_doty_3 = self._to_com_frame(0, 0, com_dotx_3, com_doty_3, com_theta)
+                l_cmd_accx_3, l_cmd_accy_3 = self._to_com_frame(0, 0, com_ddotx_3, com_ddoty_3, com_theta)
                 l_cmd_z_3 = 0
                 l_cmd_theta_3 = l_theta
                 r_cmd_x_3, r_cmd_y_3 = self._to_com_frame(r_x, r_y, com_x_3, com_y_3, com_theta)
-                r_cmd_dotx_3, r_cmd_doty_3 = self._to_com_frame(com_dotx_3, com_doty_3, 0, 0, com_theta)
+                r_cmd_dotx_3, r_cmd_doty_3 = self._to_com_frame(0, 0, com_dotx_3, com_doty_3, com_theta)
+                r_cmd_accx_3, r_cmd_accy_3 = self._to_com_frame(0, 0, com_ddotx_3, com_ddoty_3, com_theta)
                 r_cmd_z_3 = 0
                 r_cmd_theta_3 = r_theta
 
                 command = StepCommand(
                     idx = predict_idx,
-                    l_cmd_1 = [l_cmd_x_1, l_cmd_y_1, l_cmd_z_1, l_cmd_theta_1, l_cmd_dotx_1, l_cmd_doty_1],
-                    l_cmd_2 = [l_cmd_x_2, l_cmd_y_2, l_cmd_z_2, l_cmd_theta_2, l_cmd_dotx_2, l_cmd_doty_2],
-                    l_cmd_3 = [l_cmd_x_3, l_cmd_y_3, l_cmd_z_3, l_cmd_theta_3, l_cmd_dotx_3, l_cmd_doty_3],
-                    r_cmd_1 = [r_cmd_x_1, r_cmd_y_1, r_cmd_z_1, r_cmd_theta_1, r_cmd_dotx_1, r_cmd_doty_1],
-                    r_cmd_2 = [r_cmd_x_2, r_cmd_y_2, r_cmd_z_2, r_cmd_theta_2, r_cmd_dotx_2, r_cmd_doty_2],
-                    r_cmd_3 = [r_cmd_x_3, r_cmd_y_3, r_cmd_z_3, r_cmd_theta_3, r_cmd_dotx_3, r_cmd_doty_3]
+                    l_cmd_init = l_cmd_init,
+                    r_cmd_init = r_cmd_init,
+                    l_cmd_1 = [l_cmd_x_1, l_cmd_y_1, l_cmd_z_1, l_cmd_theta_1, l_cmd_dotx_1, l_cmd_doty_1, l_cmd_accx_1, l_cmd_accy_1],
+                    l_cmd_2 = [l_cmd_x_2, l_cmd_y_2, l_cmd_z_2, l_cmd_theta_2, l_cmd_dotx_2, l_cmd_doty_2, l_cmd_accx_2, l_cmd_accy_2],
+                    l_cmd_3 = [l_cmd_x_3, l_cmd_y_3, l_cmd_z_3, l_cmd_theta_3, l_cmd_dotx_3, l_cmd_doty_3, l_cmd_accx_3, l_cmd_accy_3],
+                    r_cmd_1 = [r_cmd_x_1, r_cmd_y_1, r_cmd_z_1, r_cmd_theta_1, r_cmd_dotx_1, r_cmd_doty_1, r_cmd_accx_1, r_cmd_accy_1],
+                    r_cmd_2 = [r_cmd_x_2, r_cmd_y_2, r_cmd_z_2, r_cmd_theta_2, r_cmd_dotx_2, r_cmd_doty_2, r_cmd_accx_2, r_cmd_accy_2],
+                    r_cmd_3 = [r_cmd_x_3, r_cmd_y_3, r_cmd_z_3, r_cmd_theta_3, r_cmd_dotx_3, r_cmd_doty_3, r_cmd_accx_3, r_cmd_accy_3]
                 )
                 self.command_list.append(command)
 
@@ -265,8 +281,9 @@ def main():
     planner.compute(steps)
     com_traj = planner.com_traj_array
     com_vel = planner.com_vel_array
+    com_acc = planner.com_acc_array
 
-    commander.command(steps, com_traj, com_vel)
+    commander.command(steps, com_traj, com_vel, com_acc)
 
     print("Position commands".center(60, "="))
 
@@ -287,8 +304,9 @@ def main():
     planner.compute(steps)
     com_traj = planner.com_traj_array
     com_vel = planner.com_vel_array
+    com_acc = planner.com_acc_array
 
-    commander.command(steps, com_traj, com_vel)
+    commander.command(steps, com_traj, com_vel, com_acc)
 
     print("Position commands".center(60, "="))
 
