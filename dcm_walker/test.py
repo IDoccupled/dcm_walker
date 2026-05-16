@@ -1,11 +1,7 @@
-import numpy as np
+a = [1, 2, 3, 4, 5, 6, 7]
+b = [[None]*2, a[2:]]
 
-test_array = np.empty((0,5,3))
+print(b)
+import pinocchio as pin
 
-for step in range(5): # 5 steps
-    test_list = []
-    for i in range(5): # 5 dcms in each step
-        test_list.append([step, step+i+1, step+i+2]) # 3 dimensions for each dcm
-    test_array = np.concatenate((test_array, np.array(test_list).reshape(1, -1, 3)), axis=0)
-    
-print(test_array)
+identity = pin.SE3.Identity()

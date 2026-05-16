@@ -201,14 +201,17 @@ if __name__ == "__main__":
 
     footstep.init()
     for i in range(1, 5):
-        footstep.update(i, 1 , 0)
+        footstep.update(i, 1 , -1)
     steps = footstep.list()
 
     planner.compute(steps)
     commander.command(steps, planner.com_traj_array, planner.com_vel_array, planner.com_acc_array)
     cmd_list = commander.command_list
 
-    test_cmd = cmd_list[-2]
+    for cmd in cmd_list:
+        print("Command:\n", cmd)
+
+    test_cmd = cmd_list[-4]
     print("Used command:\n", test_cmd)
 
     spline_traj_l = CubicSplineTrajectory(
