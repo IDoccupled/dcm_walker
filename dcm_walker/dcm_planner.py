@@ -1,7 +1,7 @@
 import numpy as np
 from dcm_walker.foot_step_generator import StepGenerator
 import matplotlib.pyplot as plt
-import xr_tools_py.print_tools as printtools
+from dcm_walker.xr_tools_py import print_tools as printtools
 
 class DCMPlanner:
     '''

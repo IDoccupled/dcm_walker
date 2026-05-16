@@ -3,7 +3,7 @@ from dcm_walker.step import Step
 from dcm_walker.foot_step_generator import StepGenerator
 from dcm_walker.dcm_planner import DCMPlanner
 import matplotlib.pyplot as plt
-import xr_tools_py.print_tools as pt
+from dcm_walker.xr_tools_py import print_tools as pt
 
 class StepCommand:
     '''
