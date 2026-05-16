@@ -8,7 +8,7 @@ Panels:
         - /Status1
         - /TF1
       Splitter Ratio: 0.5
-    Tree Height: 542
+    Tree Height: 361
   - Class: rviz_common/Selection
     Name: Selection
   - Class: rviz_common/Tool Properties
@@ -55,55 +55,77 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: true
+        CoM:
+          Value: true
+        left_foot:
+          Value: true
         map:
           Value: true
-        step_0_left:
+        right_foot:
           Value: true
-        step_10_left:
+        step_0:
           Value: true
-        step_11_right:
+        step_1:
           Value: true
-        step_12_left:
+        step_10:
           Value: true
-        step_13_right:
+        step_11:
           Value: true
-        step_14_left:
+        step_12:
           Value: true
-        step_15_right:
+        step_13:
           Value: true
-        step_16_left:
+        step_14:
           Value: true
-        step_17_right:
+        step_15:
           Value: true
-        step_18_left:
+        step_16:
           Value: true
-        step_19_right:
+        step_17:
           Value: true
-        step_1_right:
+        step_18:
           Value: true
-        step_20_left:
+        step_19:
           Value: true
-        step_21_right:
+        step_2:
           Value: true
-        step_22_left:
+        step_20:
           Value: true
-        step_23_right:
+        step_21:
           Value: true
-        step_2_left:
+        step_22:
           Value: true
-        step_3_right:
+        step_23:
           Value: true
-        step_4_left:
+        step_24:
           Value: true
-        step_5_right:
+        step_25:
           Value: true
-        step_6_left:
+        step_26:
           Value: true
-        step_7_right:
+        step_27:
           Value: true
-        step_8_left:
+        step_28:
           Value: true
-        step_9_right:
+        step_29:
+          Value: true
+        step_3:
+          Value: true
+        step_30:
+          Value: true
+        step_31:
+          Value: true
+        step_4:
+          Value: true
+        step_5:
+          Value: true
+        step_6:
+          Value: true
+        step_7:
+          Value: true
+        step_8:
+          Value: true
+        step_9:
           Value: true
       Marker Scale: 0.10000000149011612
       Name: TF
@@ -112,53 +134,72 @@ Visualization Manager:
       Show Names: false
       Tree:
         map:
-          step_0_left:
+          step_0:
+            left_foot:
+              CoM:
+                right_foot:
+                  {}
+          step_1:
             {}
-          step_10_left:
+          step_10:
             {}
-          step_11_right:
+          step_11:
             {}
-          step_12_left:
+          step_12:
             {}
-          step_13_right:
+          step_13:
             {}
-          step_14_left:
+          step_14:
             {}
-          step_15_right:
+          step_15:
             {}
-          step_16_left:
+          step_16:
             {}
-          step_17_right:
+          step_17:
             {}
-          step_18_left:
+          step_18:
             {}
-          step_19_right:
+          step_19:
             {}
-          step_1_right:
+          step_2:
             {}
-          step_20_left:
+          step_20:
             {}
-          step_21_right:
+          step_21:
             {}
-          step_22_left:
+          step_22:
             {}
-          step_23_right:
+          step_23:
             {}
-          step_2_left:
+          step_24:
             {}
-          step_3_right:
+          step_25:
             {}
-          step_4_left:
+          step_26:
             {}
-          step_5_right:
+          step_27:
             {}
-          step_6_left:
+          step_28:
             {}
-          step_7_right:
+          step_29:
             {}
-          step_8_left:
+          step_3:
             {}
-          step_9_right:
+          step_30:
+            {}
+          step_31:
+            {}
+          step_4:
+            {}
+          step_5:
+            {}
+          step_6:
+            {}
+          step_7:
+            {}
+          step_8:
+            {}
+          step_9:
             {}
       Update Interval: 0
       Value: true
@@ -208,25 +249,25 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 0.6962525844573975
+      Distance: 0.6764902472496033
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
         Swap Stereo Eyes: false
         Value: false
       Focal Point:
-        X: 0.27256378531455994
-        Y: 0.09634333103895187
-        Z: -0.11962176114320755
+        X: 0.18988703191280365
+        Y: 0.15685011446475983
+        Z: -0.0023031458258628845
       Focal Shape Fixed Size: true
       Focal Shape Size: 0.05000000074505806
       Invert Z Axis: false
       Name: Current View
       Near Clip Distance: 0.009999999776482582
-      Pitch: 1.0053977966308594
+      Pitch: 0.5203981399536133
       Target Frame: <Fixed Frame>
       Value: Orbit (rviz)
-      Yaw: 5.4335856437683105
+      Yaw: 5.388584613800049
     Saved: ~
 Window Geometry:
   Displays:
@@ -244,5 +285,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1050
-  X: 15
-  Y: 51
+  X: 150
+  Y: 292

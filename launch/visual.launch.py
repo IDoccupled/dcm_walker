@@ -26,7 +26,7 @@ def generate_launch_description():
 
     nodes_to_start = [
         rviz_node,
-        tf_publisher_node,
+        # tf_publisher_node,
     ]
 
     return LaunchDescription(nodes_to_start)
