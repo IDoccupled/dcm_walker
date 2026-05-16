@@ -64,58 +64,84 @@ class StepCommand:
     def idx(self) -> int:
         return self.idx
     
+    @property
     def l_cmd_pos_init(self) -> list[float]:
         return self.l_cmd_init[:4]
+    @property
     def l_cmd_vel_init(self) -> list[float]:
         return self.l_cmd_init[4:6]
+    @property
     def l_cmd_acc_init(self) -> list[float]:
         return self.l_cmd_init[6:8]
+    @property
     def l_cmd_pos_1(self) -> list[float]:
         return self.l_cmd_1[:4]
+    @property
     def l_cmd_pos_2(self) -> list[float]:
         return self.l_cmd_2[:4]
+    @property
     def l_cmd_pos_3(self) -> list[float]:
         return self.l_cmd_3[:4]
+    @property
     def l_cmd_vel_1(self) -> list[float]:
         return self.l_cmd_1[4:6]
+    @property
     def l_cmd_vel_2(self) -> list[float]:
         return self.l_cmd_2[4:6]
+    @property
     def l_cmd_vel_3(self) -> list[float]:
         return self.l_cmd_3[4:6]
+    @property
     def l_cmd_acc_1(self) -> list[float]:
         return self.l_cmd_1[6:8]
+    @property
     def l_cmd_acc_2(self) -> list[float]:
         return self.l_cmd_2[6:8]
+    @property
     def l_cmd_acc_3(self) -> list[float]:
         return self.l_cmd_3[6:8]
 
+    @property
     def r_cmd_pos_init(self) -> list[float]:
         return self.r_cmd_init[:4]
+    @property
     def r_cmd_vel_init(self) -> list[float]:
         return self.r_cmd_init[4:6]
+    @property
     def r_cmd_acc_init(self) -> list[float]:
         return self.r_cmd_init[6:8]
+    @property
     def r_cmd_pos_1(self) -> list[float]:
         return self.r_cmd_1[:4]
+    @property
     def r_cmd_pos_2(self) -> list[float]:
         return self.r_cmd_2[:4]
+    @property
     def r_cmd_pos_3(self) -> list[float]:
         return self.r_cmd_3[:4]
+    @property
     def r_cmd_vel_1(self) -> list[float]:
         return self.r_cmd_1[4:6]
+    @property
     def r_cmd_vel_2(self) -> list[float]:
         return self.r_cmd_2[4:6]
+    @property
     def r_cmd_vel_3(self) -> list[float]:
         return self.r_cmd_3[4:6]
+    @property
     def r_cmd_acc_1(self) -> list[float]:
         return self.r_cmd_1[6:8]
+    @property
     def r_cmd_acc_2(self) -> list[float]:
         return self.r_cmd_2[6:8]
+    @property
     def r_cmd_acc_3(self) -> list[float]:
         return self.r_cmd_3[6:8]
 
+    @property
     def l_cmd_last(self) -> list[float]:
         return self.l_cmd_3
+    @property
     def r_cmd_last(self) -> list[float]:
         return self.r_cmd_3
 
@@ -130,7 +156,7 @@ class StepCommander:
         self.ds_begin = ds_begin
         self.ds_end = ds_end
 
-        self.command_list = []
+        self.__command_list = []
 
     def _to_com_frame(self,
                       foot_x: float,
@@ -150,10 +176,10 @@ class StepCommander:
                 com_vel_array: np.ndarray,
                 com_acc_array: np.ndarray) -> list[StepCommand]:
             
-            self.command_list = []
+            self.__command_list = []
 
             if len(step_list) < 2:
-                return self.command_list
+                return self.__command_list
 
             yaw_list = np.cumsum([step.pos[2] for step in step_list])
 
@@ -191,8 +217,8 @@ class StepCommander:
                     l_cmd_init = [l_x, l_y, l_cmd_z, l_theta, 0.0, 0.0, 0.0, 0.0]
                     r_cmd_init = [r_x, r_y, r_cmd_z, r_theta, 0.0, 0.0, 0.0, 0.0]
                 else:
-                    l_cmd_init = self.command_list[-1].l_cmd_last()
-                    r_cmd_init = self.command_list[-1].r_cmd_last()
+                    l_cmd_init = self.__command_list[-1].l_cmd_last
+                    r_cmd_init = self.__command_list[-1].r_cmd_last
 
                 com_x_1 = com_traj_array[list_idx, self.ss, 0]
                 com_y_1 = com_traj_array[list_idx, self.ss, 1]
@@ -256,9 +282,11 @@ class StepCommander:
                     r_cmd_2 = [r_cmd_x_2, r_cmd_y_2, r_cmd_z_2, r_cmd_theta_2, r_cmd_dotx_2, r_cmd_doty_2, r_cmd_accx_2, r_cmd_accy_2],
                     r_cmd_3 = [r_cmd_x_3, r_cmd_y_3, r_cmd_z_3, r_cmd_theta_3, r_cmd_dotx_3, r_cmd_doty_3, r_cmd_accx_3, r_cmd_accy_3]
                 )
-                self.command_list.append(command)
+                self.__command_list.append(command)
 
-            return self.command_list
+    @property
+    def command_list(self) -> list[StepCommand]:
+        return self.__command_list
 
 def main():
     footstep = StepGenerator()
