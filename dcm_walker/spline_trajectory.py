@@ -189,31 +189,69 @@ class CubicSplineTrajectory:
 
 #######################################################################
 if __name__ == "__main__":
-    from dcm_walker.step_commander import StepCommand
-    step = []
-    a1 = np.array([[0.01666571], [0.03395372], [-0.221], [-0.13278918], [-0.21325496], [0.0]])
-    a2 = np.array([[0.0054082], [0.01694776], [-0.221], [-0.06891542], [-0.06623896], [0.0]])
-    a3 = np.array([[-0.01072711], [0.02160157], [-0.216], [-0.1037904], [0.15899119], [0.0]])
-    step.append(a1)
-    step.append(a2)
-    step.append(a3)
-    print("\n-----------------")
-    traj2 = CubicSplineTrajectory(
-        start_pos = [0, 0, -0.221],
-        mid_1_pos = np.array([step[0][0, 0], step[0][1, 0], step[0][2, 0]]),
-        mid_2_pos = np.array([step[1][0, 0], step[1][1, 0], step[1][2, 0]]),
-        end_pos = np.array([step[2][0, 0], step[2][1, 0], step[2][2, 0]]),
-        segment_1_duration = 0.15,
-        segment_2_duration = 0.1,
-        total_duration = 0.5,
-        start_vel = [0, 0, 0],
-        mid_1_vel = np.array([step[0][3, 0], step[0][4, 0], step[0][5, 0]]),
-        mid_2_vel = np.array([step[1][3, 0], step[1][4, 0], step[1][5, 0]]),
-        end_vel = np.array([step[2][3, 0], step[2][4, 0], step[2][5, 0]])
+    from dcm_walker.foot_step_generator import StepGenerator
+    from dcm_walker.dcm_planner import DCMPlanner
+    from dcm_walker.step_commander import StepCommander
+
+    from matplotlib import pyplot as plt
+    
+    footstep = StepGenerator()
+    planner = DCMPlanner()
+    commander = StepCommander()
+
+    footstep.init()
+    for i in range(1, 5):
+        footstep.update(i, 1 , 0)
+    steps = footstep.list()
+
+    planner.compute(steps)
+    commander.command(steps, planner.com_traj_array, planner.com_vel_array, planner.com_acc_array)
+    cmd_list = commander.command_list
+
+    test_cmd = cmd_list[-2]
+    print("Used command:\n", test_cmd)
+
+    spline_traj_l = CubicSplineTrajectory(
+        start_pos=test_cmd.l_cmd_pos_init,
+        mid_1_pos=test_cmd.l_cmd_pos_1,
+        mid_2_pos=test_cmd.l_cmd_pos_2,
+        end_pos=test_cmd.l_cmd_pos_3,
+        start_vel=test_cmd.l_cmd_vel_init,
+        mid_1_vel=test_cmd.l_cmd_vel_1,
+        mid_2_vel=test_cmd.l_cmd_vel_2,
+        end_vel=test_cmd.l_cmd_vel_3,
+        start_acc=test_cmd.l_cmd_acc_init,
+        mid_1_acc=test_cmd.l_cmd_acc_1,
+        mid_2_acc=test_cmd.l_cmd_acc_2,
+        end_acc=test_cmd.l_cmd_acc_3,
+        segment_1_duration=0.25,
+        segment_2_duration=0.15,
+        total_duration=0.5
     )
-    
-    for t in np.arange(0.00, 0.5, 0.05):
-        pos, vel, seg = traj2.update(t)
-        print(f"t={t:.2f}s: pos={pos.round(3)}, vel={vel.round(3)}, seg={seg}")
-    
-    print("-----------------\n")
+
+    freq = 100
+    dt = 1.0 / freq
+    t = 0.0
+    pos_list = []
+    for _ in range(int(0.5 / dt) + 1):
+        pos, vel, seg_idx = spline_traj_l.update(t)
+        print(f"t={t:.2f},\n segment={seg_idx+1},\n pos={pos},\n vel={vel}")
+        t += dt
+        pos_list.append(pos)
+
+    # Plot 3D trajectory
+    pos_array = np.array(pos_list)
+    fig = plt.figure()
+    ax = fig.add_subplot(111, projection='3d')
+    ax.plot(pos_array[:, 0], pos_array[:, 1], pos_array[:, 2], label='Cubic Spline Trajectory')
+    ax.scatter(test_cmd.l_cmd_pos_init[0], test_cmd.l_cmd_pos_init[1], test_cmd.l_cmd_pos_init[2], color='red', label='Start')
+    ax.scatter(test_cmd.l_cmd_pos_1[0], test_cmd.l_cmd_pos_1[1], test_cmd.l_cmd_pos_1[2], color='green', label='Mid 1')
+    ax.scatter(test_cmd.l_cmd_pos_2[0], test_cmd.l_cmd_pos_2[1], test_cmd.l_cmd_pos_2[2], color='orange', label='Mid 2')
+    ax.scatter(test_cmd.l_cmd_pos_3[0], test_cmd.l_cmd_pos_3[1], test_cmd.l_cmd_pos_3[2], color='blue', label='End')
+    ax.set_xlabel('X')
+    ax.set_ylabel('Y')
+    ax.set_zlabel('Z')
+    ax.set_title('Cubic Spline Trajectory')
+    ax.legend()
+    plt.show()
+
