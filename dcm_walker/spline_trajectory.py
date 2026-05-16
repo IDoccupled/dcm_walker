@@ -121,7 +121,7 @@ class CubicSplineTrajectory:
                     0.0, dur3
                 )
                 self.coeffs_segment3.append(c3)
-            else: # for z, theta use 3rd order polynomial
+            elif i == 2:
                 c1 = polynomial_3rd_order(
                     start_pos[i], mid_1_pos[i],
                     0.0, 0.0,
@@ -136,6 +136,27 @@ class CubicSplineTrajectory:
                 )
                 self.coeffs_segment2.append(c2)
                 
+                c3 = polynomial_3rd_order(
+                    mid_2_pos[i], end_pos[i],
+                    0.0, 0.0,
+                    0.0, dur3
+                )
+                self.coeffs_segment3.append(c3)
+            elif i == 3: # TODO: by the end of the final step, dottheta should NOT be zero
+                c1 = polynomial_3rd_order(
+                    start_pos[i], mid_1_pos[i],
+                    0.0, 0.0,
+                    0.0, dur1
+                )
+                self.coeffs_segment1.append(c1)
+                
+                c2 = polynomial_3rd_order(
+                    mid_1_pos[i], mid_2_pos[i],
+                    0.0, 0.0,
+                    0.0, dur2
+                )
+                self.coeffs_segment2.append(c2)
+                # TODO: to be modified
                 c3 = polynomial_3rd_order(
                     mid_2_pos[i], end_pos[i],
                     0.0, 0.0,
