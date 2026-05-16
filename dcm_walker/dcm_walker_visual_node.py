@@ -23,13 +23,15 @@ STEP_THETA : float = 10.0
 STEP_HEIGHT : float = 0.02
 STEP_DURATION : float = 0.5
 
+COM_HEIGHT : float = 0.198
+
 CTL_FREQUENCY : int = 20
 CTRL_DT : float = 1.0 / CTL_FREQUENCY
 
 DCM_FREQUENCY : int = 20
 DCM_DT : float = 1.0 / DCM_FREQUENCY
 
-TF_FREQUENCY : int = 5
+TF_FREQUENCY : int = 20
 TF_DT : float = 1.0 / TF_FREQUENCY
 
 '''CoM Settings'''
@@ -44,6 +46,9 @@ SPLINE_DURATION = STEP_DURATION
 SPLINE_DT = CTRL_DT
 SEGMENT_1_DURATION = SPLINE_DT * (SINGLE_SUPPORT + 1)
 SEGMENT_2_DURATION = SPLINE_DT * (DOUBLE_SUPPORT_START - SINGLE_SUPPORT)
+
+LEFT = 0
+RIGHT = 1
 
 def skewsimetric(w):
     S = np.array([[0, -w[2], w[1]],
@@ -64,7 +69,7 @@ class DCMWalkerVisual(Node):
         self.cb_group = ReentrantCallbackGroup()
         self.state_lock = threading.Lock()
 
-        self.l_cmd = self.r_cmd = None
+        self.l_pos = self.r_pos = None
 
         self.cur_step_idx = 0
 
@@ -84,6 +89,8 @@ class DCMWalkerVisual(Node):
 
         self.cmd_able_to_update = True
 
+        self.trajectory_list = []
+
     def cmd_callback(self, msg: Twist):
         with self.state_lock:
             if not self.cmd_able_to_update:
@@ -98,7 +105,6 @@ class DCMWalkerVisual(Node):
                 self.get_logger().info("[cmd_callback]: Received first cmd_vel, initializing walking pattern.")
                 self.step_generator.init()
                 self.step_generator.update(1, cmd_vel, 0)
-                steps = list(self.step_generator.list())
             else:
                 if not self.ready_for_next_step:
                     # self.get_logger().info("[cmd_callback]: Waiting for previous step to complete.")
@@ -109,12 +115,51 @@ class DCMWalkerVisual(Node):
                     f"Received cmd_vel: linear={cmd_vel:.2f}, angular={cmd_rot:.2f}."
                 )
                 self.step_generator.update(self.cur_step_idx, cmd_vel, cmd_rot)
-                steps = list(self.step_generator.list())
 
-        self.dcm_planner.compute(steps)
-        com_traj, com_vel = self.dcm_planner.com_traj_array, self.dcm_planner.com_vel_array
-        with self.state_lock:
-            self.step_commander.command(steps, com_traj, com_vel)
+        self.dcm_planner.compute(self.step_generator.list())
+
+        # with self.state_lock:        
+        self.step_commander.command(self.step_generator.list(), self.dcm_planner.com_traj_array, self.dcm_planner.com_vel_array, self.dcm_planner.com_acc_array)
+        for cmd in self.step_commander.command_list:
+            if cmd.idx < self.cur_step_idx - 1:
+                self.trajectory_list.append([])
+                continue
+            else:
+                spline_traj_l = CubicSplineTrajectory(
+                    start_pos=cmd.l_cmd_pos_init,
+                    mid_1_pos=cmd.l_cmd_pos_1,
+                    mid_2_pos=cmd.l_cmd_pos_2,
+                    end_pos=cmd.l_cmd_pos_3,
+                    start_vel=cmd.l_cmd_vel_init,
+                    mid_1_vel=cmd.l_cmd_vel_1,
+                    mid_2_vel=cmd.l_cmd_vel_2,
+                    end_vel=cmd.l_cmd_vel_3,
+                    start_acc=cmd.l_cmd_acc_init,
+                    mid_1_acc=cmd.l_cmd_acc_1,
+                    mid_2_acc=cmd.l_cmd_acc_2,
+                    end_acc=cmd.l_cmd_acc_3,
+                    segment_1_duration=SEGMENT_1_DURATION,
+                    segment_2_duration=SEGMENT_2_DURATION,
+                    total_duration=SPLINE_DURATION
+                )
+                spline_traj_r = CubicSplineTrajectory(
+                    start_pos=cmd.r_cmd_pos_init,
+                    mid_1_pos=cmd.r_cmd_pos_1,
+                    mid_2_pos=cmd.r_cmd_pos_2,
+                    end_pos=cmd.r_cmd_pos_3,
+                    start_vel=cmd.r_cmd_vel_init,
+                    mid_1_vel=cmd.r_cmd_vel_1,
+                    mid_2_vel=cmd.r_cmd_vel_2,
+                    end_vel=cmd.r_cmd_vel_3,
+                    start_acc=cmd.r_cmd_acc_init,
+                    mid_1_acc=cmd.r_cmd_acc_1,
+                    mid_2_acc=cmd.r_cmd_acc_2,
+                    end_acc=cmd.r_cmd_acc_3,
+                    segment_1_duration=SEGMENT_1_DURATION,
+                    segment_2_duration=SEGMENT_2_DURATION,
+                    total_duration=SPLINE_DURATION
+                )
+                self.trajectory_list.append((spline_traj_l, spline_traj_r))
 
     def ctrl_timer_callback(self):
         start_step_idx = None
@@ -129,10 +174,11 @@ class DCMWalkerVisual(Node):
             if not steps:
                 return
 
-            if self.cur_step_idx == steps[-1].nStep:
+            if self.cur_step_idx == steps[-1].nStep: # Reset
                 self.step_generator.reset()
                 self.cur_step_idx = 0
                 self.ready_for_next_step = True
+                self.trajectory_list = []
                 self.get_logger().info("[ctrl_timer_callback]: Walking pattern completed. Resetting step generator.")
                 return
 
@@ -140,6 +186,25 @@ class DCMWalkerVisual(Node):
                 self.ready_for_next_step = False
                 self.start_time = time.time()
                 start_step_idx = self.cur_step_idx
+
+            t_elapsed = time.time() - self.start_time
+            if t_elapsed > SPLINE_DURATION:
+                t_elapsed = SPLINE_DURATION
+            
+            l_pos, _, _ = self.trajectory_list[self.cur_step_idx][LEFT].update(t_elapsed)
+            r_pos, _, _ = self.trajectory_list[self.cur_step_idx][RIGHT].update(t_elapsed)
+
+            l_trans = np.array([l_pos[0], l_pos[1], l_pos[2] - COM_HEIGHT])
+            l_trans = pin.SE3(np.eye(3), l_trans)
+            l_rot = pin.utils.rotate('z', l_pos[3])
+            l_rot = pin.SE3(l_rot, np.zeros(3))
+            r_trans = np.array([r_pos[0], r_pos[1], r_pos[2] - COM_HEIGHT])
+            r_trans = pin.SE3(np.eye(3), r_trans)
+            r_rot = pin.utils.rotate('z', r_pos[3])
+            r_rot = pin.SE3(r_rot, np.zeros(3))
+
+            self.l_pos = l_trans * l_rot
+            self.r_pos = r_trans * r_rot
 
             if time.time() - self.start_time > SPLINE_DURATION:
                 self.ready_for_next_step = True
@@ -169,7 +234,16 @@ class DCMWalkerVisual(Node):
             R = pin.utils.rotate('z', theta_integral)
             T_trans = pin.SE3(np.eye(3), t)
             T_rot = pin.SE3(R, np.zeros(3))
-            self.broadcastTF(self.br, T_trans * T_rot, 'map', f'step_{step.nStep}_{step.footSide}')
+            self.broadcastTF(self.br, T_trans * T_rot, 'map', f'step_{step.nStep}')
+
+        if steps[self.cur_step_idx].is_left():
+            self.broadcastTF(self.br, pin.SE3.Identity(), f'step_{self.cur_step_idx}', 'left_foot')
+            self.broadcastTF(self.br, self.l_pos.inverse(), 'left_foot', 'CoM')
+            self.broadcastTF(self.br, self.r_pos, 'CoM', 'right_foot')
+        else:
+            self.broadcastTF(self.br, pin.SE3.Identity(), f'step_{self.cur_step_idx}', 'right_foot')
+            self.broadcastTF(self.br, self.r_pos.inverse(), 'right_foot', 'CoM')
+            self.broadcastTF(self.br, self.l_pos, 'CoM', 'left_foot')
    
 
     def broadcastTF(self, br, HT, parent, child):
