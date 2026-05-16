@@ -4,7 +4,7 @@ from rclpy.node import Node
 from rclpy.callback_groups import ReentrantCallbackGroup
 from rclpy.executors import MultiThreadedExecutor
 
-import pinocchio as pin
+import pinocchio as pin #type: ignore
 import numpy as np  
 from tf2_ros import TransformBroadcaster
 import time
