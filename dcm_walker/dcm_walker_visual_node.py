@@ -89,7 +89,8 @@ class DCMWalkerVisual(Node):
 
         self.cmd_able_to_update = True
 
-        self.trajectory_list = []
+        self.trajectory_by_step = {}
+        self.last_missing_traj_step = None
 
     def cmd_callback(self, msg: Twist):
         with self.state_lock:
@@ -99,6 +100,7 @@ class DCMWalkerVisual(Node):
 
             cmd_vel = msg.linear.x
             cmd_rot = msg.angular.z
+            cur_step_idx = self.cur_step_idx
 
             if not self.step_generator.inited:
                 self.ready_for_next_step = True
@@ -114,52 +116,62 @@ class DCMWalkerVisual(Node):
                     f"[cmd_callback]: Update: Current step idx: {self.cur_step_idx}. "
                     f"Received cmd_vel: linear={cmd_vel:.2f}, angular={cmd_rot:.2f}."
                 )
-                self.step_generator.update(self.cur_step_idx, cmd_vel, cmd_rot)
+                self.step_generator.update(cur_step_idx, cmd_vel, cmd_rot)
 
         self.dcm_planner.compute(self.step_generator.list())
 
-        # with self.state_lock:        
-        self.step_commander.command(self.step_generator.list(), self.dcm_planner.com_traj_array, self.dcm_planner.com_vel_array, self.dcm_planner.com_acc_array)
+        self.step_commander.command(
+            self.step_generator.list(),
+            self.dcm_planner.com_traj_array,
+            self.dcm_planner.com_vel_array,
+            self.dcm_planner.com_acc_array,
+        )
+
+        new_trajectories = {}
         for cmd in self.step_commander.command_list:
-            if cmd.idx < self.cur_step_idx - 1:
-                self.trajectory_list.append([])
+            if cmd.idx < cur_step_idx - 1:
                 continue
-            else:
-                spline_traj_l = CubicSplineTrajectory(
-                    start_pos=cmd.l_cmd_pos_init,
-                    mid_1_pos=cmd.l_cmd_pos_1,
-                    mid_2_pos=cmd.l_cmd_pos_2,
-                    end_pos=cmd.l_cmd_pos_3,
-                    start_vel=cmd.l_cmd_vel_init,
-                    mid_1_vel=cmd.l_cmd_vel_1,
-                    mid_2_vel=cmd.l_cmd_vel_2,
-                    end_vel=cmd.l_cmd_vel_3,
-                    start_acc=cmd.l_cmd_acc_init,
-                    mid_1_acc=cmd.l_cmd_acc_1,
-                    mid_2_acc=cmd.l_cmd_acc_2,
-                    end_acc=cmd.l_cmd_acc_3,
-                    segment_1_duration=SEGMENT_1_DURATION,
-                    segment_2_duration=SEGMENT_2_DURATION,
-                    total_duration=SPLINE_DURATION
-                )
-                spline_traj_r = CubicSplineTrajectory(
-                    start_pos=cmd.r_cmd_pos_init,
-                    mid_1_pos=cmd.r_cmd_pos_1,
-                    mid_2_pos=cmd.r_cmd_pos_2,
-                    end_pos=cmd.r_cmd_pos_3,
-                    start_vel=cmd.r_cmd_vel_init,
-                    mid_1_vel=cmd.r_cmd_vel_1,
-                    mid_2_vel=cmd.r_cmd_vel_2,
-                    end_vel=cmd.r_cmd_vel_3,
-                    start_acc=cmd.r_cmd_acc_init,
-                    mid_1_acc=cmd.r_cmd_acc_1,
-                    mid_2_acc=cmd.r_cmd_acc_2,
-                    end_acc=cmd.r_cmd_acc_3,
-                    segment_1_duration=SEGMENT_1_DURATION,
-                    segment_2_duration=SEGMENT_2_DURATION,
-                    total_duration=SPLINE_DURATION
-                )
-                self.trajectory_list.append((spline_traj_l, spline_traj_r))
+            spline_traj_l = CubicSplineTrajectory(
+                start_pos=cmd.l_cmd_pos_init,
+                mid_1_pos=cmd.l_cmd_pos_1,
+                mid_2_pos=cmd.l_cmd_pos_2,
+                end_pos=cmd.l_cmd_pos_3,
+                start_vel=cmd.l_cmd_vel_init,
+                mid_1_vel=cmd.l_cmd_vel_1,
+                mid_2_vel=cmd.l_cmd_vel_2,
+                end_vel=cmd.l_cmd_vel_3,
+                start_acc=cmd.l_cmd_acc_init,
+                mid_1_acc=cmd.l_cmd_acc_1,
+                mid_2_acc=cmd.l_cmd_acc_2,
+                end_acc=cmd.l_cmd_acc_3,
+                segment_1_duration=SEGMENT_1_DURATION,
+                segment_2_duration=SEGMENT_2_DURATION,
+                total_duration=SPLINE_DURATION,
+            )
+            spline_traj_r = CubicSplineTrajectory(
+                start_pos=cmd.r_cmd_pos_init,
+                mid_1_pos=cmd.r_cmd_pos_1,
+                mid_2_pos=cmd.r_cmd_pos_2,
+                end_pos=cmd.r_cmd_pos_3,
+                start_vel=cmd.r_cmd_vel_init,
+                mid_1_vel=cmd.r_cmd_vel_1,
+                mid_2_vel=cmd.r_cmd_vel_2,
+                end_vel=cmd.r_cmd_vel_3,
+                start_acc=cmd.r_cmd_acc_init,
+                mid_1_acc=cmd.r_cmd_acc_1,
+                mid_2_acc=cmd.r_cmd_acc_2,
+                end_acc=cmd.r_cmd_acc_3,
+                segment_1_duration=SEGMENT_1_DURATION,
+                segment_2_duration=SEGMENT_2_DURATION,
+                total_duration=SPLINE_DURATION,
+            )
+            new_trajectories[cmd.idx] = (spline_traj_l, spline_traj_r)
+
+        with self.state_lock:
+            stale_keys = [k for k in self.trajectory_by_step if k < cur_step_idx - 1]
+            for k in stale_keys:
+                del self.trajectory_by_step[k]
+            self.trajectory_by_step.update(new_trajectories)
 
     def ctrl_timer_callback(self):
         start_step_idx = None
@@ -178,7 +190,8 @@ class DCMWalkerVisual(Node):
                 self.step_generator.reset()
                 self.cur_step_idx = 0
                 self.ready_for_next_step = True
-                self.trajectory_list = []
+                self.trajectory_by_step = {}
+                self.last_missing_traj_step = None
                 self.get_logger().info("[ctrl_timer_callback]: Walking pattern completed. Resetting step generator.")
                 return
 
@@ -191,8 +204,18 @@ class DCMWalkerVisual(Node):
             if t_elapsed > SPLINE_DURATION:
                 t_elapsed = SPLINE_DURATION
             
-            l_pos, _, _ = self.trajectory_list[self.cur_step_idx][LEFT].update(t_elapsed)
-            r_pos, _, _ = self.trajectory_list[self.cur_step_idx][RIGHT].update(t_elapsed)
+            traj_pair = self.trajectory_by_step.get(self.cur_step_idx)
+            if traj_pair is None:
+                if self.last_missing_traj_step != self.cur_step_idx:
+                    self.get_logger().warning(
+                        f"[ctrl_timer_callback]: Missing trajectory for step {self.cur_step_idx}, waiting for cmd update."
+                    )
+                    self.last_missing_traj_step = self.cur_step_idx
+                return
+            self.last_missing_traj_step = None
+
+            l_pos, _, _ = traj_pair[LEFT].update(t_elapsed)
+            r_pos, _, _ = traj_pair[RIGHT].update(t_elapsed)
 
             l_trans = np.array([l_pos[0], l_pos[1], l_pos[2] - COM_HEIGHT])
             l_trans = pin.SE3(np.eye(3), l_trans)
@@ -223,8 +246,12 @@ class DCMWalkerVisual(Node):
             if not self.step_generator.inited:
                 return
             steps = list(self.step_generator.list())
+            l_pos = self.l_pos
+            r_pos = self.r_pos
 
-        if not steps:
+        if not steps or l_pos is None or r_pos is None:
+            return
+        if self.cur_step_idx >= len(steps):
             return
 
         theta_integral = 0.0
@@ -238,12 +265,12 @@ class DCMWalkerVisual(Node):
 
         if steps[self.cur_step_idx].is_left():
             self.broadcastTF(self.br, pin.SE3.Identity(), f'step_{self.cur_step_idx}', 'left_foot')
-            self.broadcastTF(self.br, self.l_pos.inverse(), 'left_foot', 'CoM')
-            self.broadcastTF(self.br, self.r_pos, 'CoM', 'right_foot')
+            self.broadcastTF(self.br, l_pos.inverse(), 'left_foot', 'CoM')
+            self.broadcastTF(self.br, r_pos, 'CoM', 'right_foot')
         else:
             self.broadcastTF(self.br, pin.SE3.Identity(), f'step_{self.cur_step_idx}', 'right_foot')
-            self.broadcastTF(self.br, self.r_pos.inverse(), 'right_foot', 'CoM')
-            self.broadcastTF(self.br, self.l_pos, 'CoM', 'left_foot')
+            self.broadcastTF(self.br, r_pos.inverse(), 'right_foot', 'CoM')
+            self.broadcastTF(self.br, l_pos, 'CoM', 'left_foot')
    
 
     def broadcastTF(self, br, HT, parent, child):
