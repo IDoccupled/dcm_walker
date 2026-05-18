@@ -219,11 +219,11 @@ class DCMWalkerVisual(Node):
 
             l_trans = np.array([l_pos[0], l_pos[1], l_pos[2] - COM_HEIGHT])
             l_trans = pin.SE3(np.eye(3), l_trans)
-            l_rot = pin.utils.rotate('z', l_pos[3])
+            l_rot = pin.utils.rotate('z', -l_pos[3])
             l_rot = pin.SE3(l_rot, np.zeros(3))
             r_trans = np.array([r_pos[0], r_pos[1], r_pos[2] - COM_HEIGHT])
             r_trans = pin.SE3(np.eye(3), r_trans)
-            r_rot = pin.utils.rotate('z', r_pos[3])
+            r_rot = pin.utils.rotate('z', -r_pos[3])
             r_rot = pin.SE3(r_rot, np.zeros(3))
 
             self.l_pos = l_trans * l_rot
