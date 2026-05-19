@@ -1,3 +1,11 @@
+import os
+import sys
+
+_THIS_DIR = os.path.dirname(os.path.abspath(__file__))
+_PKG_ROOT = os.path.dirname(_THIS_DIR)
+if _PKG_ROOT not in sys.path:
+    sys.path.insert(0, _PKG_ROOT)
+
 import threading
 import rclpy
 from rclpy.node import Node
