@@ -99,6 +99,7 @@ class DCMWalkerVisual(Node):
             self.cmd_able_to_update = False
 
             cmd_vel = msg.linear.x
+            cmd_vel = max(0.0, min(1.0, cmd_vel))
             cmd_rot = msg.angular.z
             cur_step_idx = self.cur_step_idx
 
