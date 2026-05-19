@@ -1,7 +1,7 @@
 import numpy as np
 from dcm_walker.foot_step_generator import StepGenerator
 import matplotlib.pyplot as plt
-from dcm_walker.xr_tools_py import print_tools as printtools
+from dcm_walker.xr_tools_py import print_tools as pt
 
 class DCMPlanner:
     '''
@@ -141,7 +141,7 @@ class DCMPlanner:
             print("COM Velocity Array, size:", self.com_vel_array.shape)
             print("COM Acceleration Array, size:", self.com_acc_array.shape)
             for i in range(self.com_traj_array.shape[0]):
-                printtools.printgreen(f"Step {i}, swing foot {'left' if step_list[i+1].is_left() else 'right'}:")
+                pt.printgreen(f"Step {i}, swing foot {'left' if step_list[i+1].is_left() else 'right'}:")
                 for j in range(self.com_traj_array.shape[1]):
                     print(f"Time {j*self.dt:.2f}s: ")
                     print(f"COM Position = ({self.com_traj_array[i,j,0]:.3f}, {self.com_traj_array[i,j,1]:.3f}, {self.com_traj_array[i,j,2]:.3f})")
@@ -149,7 +149,7 @@ class DCMPlanner:
                     print(f"COM Acceleration = ({self.com_acc_array[i,j,0]:.3f}, {self.com_acc_array[i,j,1]:.3f}, {self.com_acc_array[i,j,2]:.3f})")
             print("="*60)
             for step in step_list:
-                printtools.printyellow(f'Step {step.nStep} , Foot {"Left" if step.is_left() else "Right"}')
+                pt.printyellow(f'Step {step.nStep} , Foot {"Left" if step.is_left() else "Right"}')
                 print(f'Position = ({step.pos[0]:.3f}, {step.pos[1]:.3f}, {step.pos[2]:.3f})')
             print("="*60)   
 
