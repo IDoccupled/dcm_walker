@@ -72,7 +72,7 @@ ros2 launch dcm_walker visual.launch.py
 Use the way you like to send a velocity command:
 
 ```bash
-ros2 topic pub /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1}, angular: {z: 0.5}}"
+ros2 topic pub -r 20 /cmd_vel geometry_msgs/msg/Twist "{linear: {x: 1}, angular: {z: 0.5}}"
 ```
 ```bash
 ros2 run teleop_twist_keyboard teleop_twist_keyboard
