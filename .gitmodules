@@ -1,3 +1,0 @@
-[submodule "dcm_walker/xr_tools_py"]
-	path = dcm_walker/xr_tools_py
-	url = git@github.com:IDoccupled/xr_tools_py.git

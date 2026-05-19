@@ -3,7 +3,6 @@ from dcm_walker.step import Step
 from dcm_walker.foot_step_generator import StepGenerator
 from dcm_walker.dcm_planner import DCMPlanner
 import matplotlib.pyplot as plt
-from dcm_walker.xr_tools_py import print_tools as pt
 
 class StepCommand:
     '''
@@ -49,7 +48,7 @@ class StepCommand:
         self.r_cmd_3 = r_cmd_3
 
     def __str__(self):
-        return f"{pt.textyellow(f"Step idx: {self.idx}")}\n" \
+        return f"Step idx: {self.idx}\n" \
                f"L_cmd   : pos_x, pos_y, lift,   rot,  vel_x, vel_y, acc_x, acc_y\n" \
                f"init    : {float(self.l_cmd_init[0]):.3f}, {float(self.l_cmd_init[1]):.3f}, {float(self.l_cmd_init[2]):.3f}, {float(self.l_cmd_init[3]):.3f}, {float(self.l_cmd_init[4]):.3f}, {float(self.l_cmd_init[5]):.3f}, {float(self.l_cmd_init[6]):.3f}, {float(self.l_cmd_init[7]):.3f}\n" \
                f"ss      : {float(self.l_cmd_1[0]):.3f}, {float(self.l_cmd_1[1]):.3f}, {float(self.l_cmd_1[2]):.3f}, {float(self.l_cmd_1[3]):.3f}, {float(self.l_cmd_1[4]):.3f}, {float(self.l_cmd_1[5]):.3f}, {float(self.l_cmd_1[6]):.3f}, {float(self.l_cmd_1[7]):.3f}\n" \
