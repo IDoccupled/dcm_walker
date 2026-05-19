@@ -12,7 +12,7 @@ from geometry_msgs.msg import TransformStamped, Twist
 from tf_transformations import euler_from_matrix
 
 from dcm_walker.spline_trajectory import CubicSplineTrajectory
-from dcm_walker.foot_step_generator import StepGenerator
+from dcm_walker.foot_step_generator import StepGenerator, nStepError
 from dcm_walker.dcm_planner import DCMPlanner
 from dcm_walker.step_commander import StepCommander
 
@@ -102,21 +102,25 @@ class DCMWalkerVisual(Node):
             cmd_rot = msg.angular.z
             cur_step_idx = self.cur_step_idx
 
-            if not self.step_generator.inited:
-                self.ready_for_next_step = True
-                self.get_logger().info("[cmd_callback]: Received first cmd_vel, initializing walking pattern.")
-                self.step_generator.init()
-                self.step_generator.update(1, cmd_vel, 0)
-            else:
-                if not self.ready_for_next_step:
-                    # self.get_logger().info("[cmd_callback]: Waiting for previous step to complete.")
-                    return
+            try:
+                if not self.step_generator.inited:
+                    self.ready_for_next_step = True
+                    self.get_logger().info("[cmd_callback]: Received first cmd_vel, initializing walking pattern.")
+                    self.step_generator.init()
+                    self.step_generator.update(1, cmd_vel, 0)
+                else:
+                    if not self.ready_for_next_step:
+                        # self.get_logger().info("[cmd_callback]: Waiting for previous step to complete.")
+                        return
 
-                self.get_logger().info(
-                    f"[cmd_callback]: Update: Current step idx: {self.cur_step_idx}. "
-                    f"Received cmd_vel: linear={cmd_vel:.2f}, angular={cmd_rot:.2f}."
-                )
-                self.step_generator.update(cur_step_idx, cmd_vel, cmd_rot)
+                    self.get_logger().info(
+                        f"[cmd_callback]: Update: Current step idx: {self.cur_step_idx}. "
+                        f"Received cmd_vel: linear={cmd_vel:.2f}, angular={cmd_rot:.2f}."
+                    )
+                    self.step_generator.update(cur_step_idx, cmd_vel, cmd_rot)
+            except nStepError as e:
+                self.get_logger().error(f"[cmd_callback]: nStepError occurred: {e}")
+                return
 
         self.dcm_planner.compute(self.step_generator.list())
 
@@ -303,25 +307,20 @@ def main(args=None):
     executor.add_node(node)
     try:
         executor.spin()
+    except KeyboardInterrupt:
+        node.get_logger().info("User interrupted")
+    except Exception as e:
+        node.get_logger().error(f"Error occurred: {e}")
     finally:
-        node.destroy_node()
-        rclpy.shutdown()
-    # try:
-    #     rclpy.spin(node)
-    # except KeyboardInterrupt:
-    #     node.get_logger().info("User interrupted")
-    # except Exception as e:
-    #     node.get_logger().error(f"Error occurred: {e}")
-    # finally:
-    #     try:
-    #         node.destroy_node()
-    #     except Exception:
-    #         pass
-    #     try:
-    #         if rclpy.ok():
-    #             rclpy.shutdown()
-    #     except Exception:
-    #         pass
+        try:
+            node.destroy_node()
+        except Exception:
+            pass
+        try:
+            if rclpy.ok():
+                rclpy.shutdown()
+        except Exception:
+            pass
 
 if __name__ == '__main__':
     main()
